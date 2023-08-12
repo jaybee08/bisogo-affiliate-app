@@ -5,6 +5,8 @@ import { fetchAndParseProductFeedCsv } from '../lib/parseProductFeedCsv';
 
 export default function ProductPage({ product }) {
   const router = useRouter();
+  const { productId } = router.query;
+  console.log('productId:', productId);
 
   // Handle case when the page is still being generated
   if (router.isFallback) {
@@ -20,6 +22,9 @@ export default function ProductPage({ product }) {
     <div>
       <h1>{product.Title}</h1>
       <p>Description: {product.Description}</p>
+      {product.Image_link && (
+        <img src={product.Image_link} alt={product.Title} />
+      )}
       {/* Display other product details here */}
     </div>
   );

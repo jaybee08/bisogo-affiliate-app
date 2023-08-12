@@ -1,8 +1,10 @@
+// ProductFeed.js
 import React, { useState, useEffect } from 'react';
 import { fetchAndParseProductFeedCsv } from '../lib/parseProductFeedCsv';
 import { withRouter } from 'next/router';
 
-const productsPerPage = 20;
+
+const productsPerPage = 5;
 
 function ProductFeed({ router }) {
   const [products, setProducts] = useState([]);
@@ -12,15 +14,18 @@ function ProductFeed({ router }) {
     async function fetchData() {
       try {
         const parsedData = await fetchAndParseProductFeedCsv();
-
+  
         // Filter out any items with missing or duplicate "Id" values
         const uniqueProducts = parsedData.filter(
-          (product, index, self) => product.Id && self.findIndex((p) => p.Id === product.Id) === index
+          (product, index, self) =>
+            product.Id && self.findIndex((p) => p.Id === product.Id) === index
         );
-
+  
         // Filter out items without valid Image_link URLs
-        const productsWithImages = uniqueProducts.filter((product) => product.Image_link);
-
+        const productsWithImages = uniqueProducts.filter(
+          (product) => product.Image_link
+        );
+  
         setProducts(productsWithImages);
       } catch (error) {
         console.error('Error fetching and parsing product feed:', error);
@@ -28,6 +33,7 @@ function ProductFeed({ router }) {
     }
     fetchData();
   }, []);
+  
 
   // Calculate the index range for the current page
   const lastIndex = currentPage * productsPerPage;
@@ -55,7 +61,11 @@ function ProductFeed({ router }) {
             <h3>{product.Title}</h3>
             <p>Price: {product.Price}</p>
             {product.Image_link && (
-              <img src={product.Image_link} alt={product.Title} width={200} />
+              <img
+                src={product.Image_link}
+                alt={product.Title}
+                width={200}
+              />
             )}
             <button
               onClick={() => redirectToProductPage(product.Id)}

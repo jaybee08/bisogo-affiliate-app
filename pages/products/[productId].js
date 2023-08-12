@@ -1,4 +1,3 @@
-// pages/[productId].js
 import { useRouter } from 'next/router';
 import { fetchAndParseProductFeedCsv } from '../../lib/parseProductFeedCsv';
 
@@ -10,9 +9,12 @@ const ProductPage = ({ product }) => {
 
   return (
     <div>
-      <h2>{product.Title}</h2>
-      <p>Price: {product.Price}</p>
-      {/* Add other product details as needed */}
+      <h1>{product.Title}</h1>
+      <p>Description: {product.Description}</p>
+      {product.Image_link && (
+        <img src={product.Image_link} alt={product.Title} />
+      )}
+      {/* Display other product details here */}
     </div>
   );
 };
@@ -20,7 +22,10 @@ const ProductPage = ({ product }) => {
 export async function getServerSideProps(context) {
   try {
     const parsedData = await fetchAndParseProductFeedCsv();
-    const product = parsedData.find((p) => p.Id === context.params.productId) || null;
+
+    const product = parsedData.find((p) => {
+      return p.Id === context.params.productId;
+    }) || null;
 
     return {
       props: {
