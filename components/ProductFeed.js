@@ -1,71 +1,55 @@
-// ProductFeed.js
+// components/ProductFeed.js
+
 import React, { useState, useEffect } from 'react';
 import { fetchAndParseProductFeedCsv } from '../lib/parseProductFeedCsv';
-import { withRouter } from 'next/router';
-
+import { useRouter } from 'next/router';
 
 const productsPerPage = 5;
 
-function ProductFeed({ router }) {
+function ProductFeed() {
   const [products, setProducts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
+  const currentPage = parseInt(router.query.page) || 1;
 
   useEffect(() => {
     async function fetchData() {
       try {
         const parsedData = await fetchAndParseProductFeedCsv();
-  
-        // Filter out any items with missing or duplicate "Id" values
-        const uniqueProducts = parsedData.filter(
-          (product, index, self) =>
-            product.Id && self.findIndex((p) => p.Id === product.Id) === index
-        );
-  
-        // Filter out items without valid Image_link URLs
-        const productsWithImages = uniqueProducts.filter(
-          (product) => product.Image_link
-        );
-  
-        setProducts(productsWithImages);
+        const startIndex = (currentPage - 1) * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        const productsOnPage = parsedData.slice(startIndex, endIndex);
+        setProducts(productsOnPage);
       } catch (error) {
         console.error('Error fetching and parsing product feed:', error);
       }
     }
     fetchData();
-  }, []);
-  
+  }, [currentPage]);
 
-  // Calculate the index range for the current page
-  const lastIndex = currentPage * productsPerPage;
-  const firstIndex = lastIndex - productsPerPage;
-  const currentProducts = products.slice(firstIndex, lastIndex);
-
-  // Handle pagination navigation
-  const nextPage = () => setCurrentPage((prev) => prev + 1);
-  const prevPage = () => setCurrentPage((prev) => prev - 1);
-
-  // Redirect to the product page when the button is clicked
   const redirectToProductPage = (id) => {
-    console.log('Product ID:', id);
     if (id) {
       router.push(`/products/${id}`);
     }
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1) {
+      router.push(`/?page=${newPage}`);
+    }
+  };
+  
+  
+
   return (
     <div>
       <h2>Product Feed</h2>
       <ul>
-        {currentProducts.map((product) => (
+        {products.map((product) => (
           <li key={product.Id}>
             <h3>{product.Title}</h3>
             <p>Price: {product.Price}</p>
             {product.Image_link && (
-              <img
-                src={product.Image_link}
-                alt={product.Title}
-                width={200}
-              />
+              <img src={product.Image_link} alt={product.Title} width={200} />
             )}
             <button
               onClick={() => redirectToProductPage(product.Id)}
@@ -77,10 +61,16 @@ function ProductFeed({ router }) {
         ))}
       </ul>
       <div>
-        <button onClick={prevPage} disabled={currentPage === 1}>
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
           Previous Page
         </button>
-        <button onClick={nextPage} disabled={lastIndex >= products.length}>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={products.length < productsPerPage}
+        >
           Next Page
         </button>
       </div>
@@ -88,4 +78,4 @@ function ProductFeed({ router }) {
   );
 }
 
-export default withRouter(ProductFeed);
+export default ProductFeed;
