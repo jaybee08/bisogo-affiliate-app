@@ -1,5 +1,3 @@
-// components/ProductFeed.js
-
 import React, { useState, useEffect } from 'react';
 import { fetchAndParseProductFeedCsv } from '../lib/parseProductFeedCsv';
 import { useRouter } from 'next/router';
@@ -26,9 +24,10 @@ function ProductFeed() {
     fetchData();
   }, [currentPage]);
 
-  const redirectToProductPage = (id) => {
-    if (id) {
-      router.push(`/products/${id}`);
+  const redirectToProductPage = (title) => {
+    if (title) {
+      const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
+      router.push(`/products/${encodeURIComponent(formattedTitle)}`);
     }
   };
 
@@ -37,8 +36,6 @@ function ProductFeed() {
       router.push(`/?page=${newPage}`);
     }
   };
-  
-  
 
   return (
     <div>
@@ -52,7 +49,7 @@ function ProductFeed() {
               <img src={product.Image_link} alt={product.Title} width={200} />
             )}
             <button
-              onClick={() => redirectToProductPage(product.Id)}
+              onClick={() => redirectToProductPage(product.Title)}
               disabled={!product.Link}
             >
               Learn More

@@ -1,50 +1,52 @@
+// pages/products/[productId].js
 
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { fetchAndParseProductFeedCsv } from '../../lib/parseProductFeedCsv';
 
-const ProductPage = ({ product }) => {
-  console.log({ product });
+function fetchProductByTitle(title) {
+  return fetchAndParseProductFeedCsv().then(products => {
+    return products.find(product => product.Title.toLowerCase() === title.toLowerCase());
+  });
+}
+
+function ProductDetail() {
+  const [product, setProduct] = useState(null);
+  const router = useRouter();
+  const { productId } = router.query;
+
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        if (productId) {
+          // Format the title to lowercase with dashes
+          const formattedTitle = productId.replace(/-/g, ' ');
+          // Fetch the product data based on the formatted title
+          const productData = await fetchProductByTitle(formattedTitle);
+          setProduct(productData);
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      }
+    }
+    fetchProduct();
+  }, [productId]);
+
   if (!product) {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
-      <h1>{product.Title}</h1>
+      <h2>{product.Title}</h2>
+      <p>Price: {product.Price}</p>
       <p>Description: {product.Description}</p>
       {product.Image_link && (
-        <img src={product.Image_link} alt={product.Title} />
+        <img src={product.Image_link} alt={product.Title} width={200} />
       )}
-      {/* Display other product details here */}
+      <button onClick={() => router.push('/products')}>Back to Product Feed</button>
     </div>
   );
-};
-
-export async function getServerSideProps(context) {
-  try {
-    const parsedData = await fetchAndParseProductFeedCsv();
-    console.log('Parsed Data101:', parsedData);
-
-    const productId = context.params.productId;
-    console.log('Product ID from context:', productId);
-
-    const product = parsedData.find((p) => {
-      return p.Id === context.params.productId;
-    }) || null;
-    console.log('Found Product:', product);
-
-    return {
-      props: {
-        product,
-      },
-    };
-  } catch (error) {
-    console.error('Error fetching and parsing product feed:', error);
-    return {
-      props: {
-        product: null,
-      },
-    };
-  }
 }
 
-export default ProductPage;
+export default ProductDetail;
