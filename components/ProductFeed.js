@@ -40,6 +40,7 @@ function ProductFeed() {
   return (
     <div>
       <h2>Product Feed</h2>
+      <p>Showing products {((currentPage - 1) * productsPerPage) + 1} - {Math.min(currentPage * productsPerPage, products.length)} of {products.length}</p>
       <ul>
         {products.map((product) => (
           <li key={product.Id}>
