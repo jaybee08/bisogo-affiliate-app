@@ -1,15 +1,13 @@
 // pages/_app.tsx
-import Image from 'next/image';
+import '../app/globals.css';
+import { AppProps } from 'next/app';
 
-function MyApp({ Component, pageProps }) {
-  // Your custom app component code (layout and functionality)
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <>
-      <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        {/* Rest of your custom layout */}
-      </main>
+    <div className="flex items-center justify-center bg-white text-black h-full p-4">
+      {/* Rest of your custom layout */}
       <Component {...pageProps} />
-    </>
+    </div>
   );
 }
 

@@ -44,7 +44,9 @@ function ProductDetail() {
       {product.Image_link && (
         <img src={product.Image_link} alt={product.Title} width={200} />
       )}
-      <button onClick={() => router.push('/products')}>Back to Product Feed</button>
+      <button 
+      className="bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded z-30"
+      onClick={() => router.push('/')}>Back to Product Feed</button>
     </div>
   );
 }
